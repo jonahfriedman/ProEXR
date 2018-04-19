@@ -332,11 +332,11 @@ CryptomatteContext::GetCoverage(int x, int y) const
 
 
 PF_PixelFloat
-CryptomatteContext::GetColor(int x, int y) const
+CryptomatteContext::GetColor(int x, int y, float &coverage) const
 {
 	PF_PixelFloat color;
 	
-	color.alpha = color.red = color.green = color.blue = 0.f;
+	coverage = color.red = color.green = color.blue = 0.f;
 	color.alpha = 1.f;
 
 	for(std::vector<Level *>::const_iterator i = _levels.begin(); i != _levels.end(); ++i)
@@ -360,6 +360,7 @@ CryptomatteContext::GetColor(int x, int y) const
 		color.red	+= (selectedCoverage * (1.0f - color.red));
 		color.green	+= (selectedCoverage * (1.0f - color.green));
 		color.blue	+= (selectedCoverage * (1.0f - color.blue));
+		coverage     = selectedCoverage;
 	}
 	
 	return color;
@@ -1416,8 +1417,10 @@ DrawMatte_Iterate(void *refconPV,
 		for(int x=0; x < i_data->width; x++)
 		{
 			const PF_PixelFloat color = i_data->context->GetSelectionColor(x + i_data->channelMove.h, i + i_data->channelMove.v);
-			
-			pix->alpha	= FloatToChan<CHANTYPE>(color.alpha);
+
+			pix->alpha = i_data->display == DISPLAY_MATTED_COLORS
+							 ? FloatToChan<CHANTYPE>(color.green)
+							 : FloatToChan<CHANTYPE>(color.alpha);
 			pix->red	= FloatToChan<CHANTYPE>(color.red);
 			pix->green	= FloatToChan<CHANTYPE>(color.green);
 			pix->blue	= FloatToChan<CHANTYPE>(color.blue);
@@ -1425,13 +1428,16 @@ DrawMatte_Iterate(void *refconPV,
 			pix++;
 		}
 	}
-	else if(i_data->display == DISPLAY_COLORS)
+	else if(i_data->display == DISPLAY_COLORS || i_data->display == DISPLAY_MATTED_COLORS)
 	{
 		for(int x=0; x < i_data->width; x++)
 		{
-			const PF_PixelFloat color = i_data->context->GetColor(x + i_data->channelMove.h, i + i_data->channelMove.v);
-			
-			pix->alpha	= FloatToChan<CHANTYPE>(color.alpha);
+			float coverage;
+			const PF_PixelFloat color = i_data->context->GetColor(x + i_data->channelMove.h, i + i_data->channelMove.v, coverage);
+
+			pix->alpha = i_data->display == DISPLAY_MATTED_COLORS
+							 ? FloatToChan<CHANTYPE>(coverage)
+							 : FloatToChan<CHANTYPE>(color.alpha);
 			pix->red	= FloatToChan<CHANTYPE>(color.red);
 			pix->green	= FloatToChan<CHANTYPE>(color.green);
 			pix->blue	= FloatToChan<CHANTYPE>(color.blue);
@@ -1638,9 +1644,9 @@ DoRender(
 			{
 				err = suites.PFIterate8Suite()->iterate_generic(copy_height, &matte_iter, DrawMatte_Iterate<PF_Pixel, A_u_char>);
 			}
-			
-			
-			if(CRYPTO_display->u.pd.value == DISPLAY_COLORS || CRYPTO_selection->u.bd.value)
+
+			if(CRYPTO_display->u.pd.value == DISPLAY_COLORS ||
+			   CRYPTO_display->u.pd.value == DISPLAY_MATTED_COLORS || CRYPTO_selection->u.bd.value)
 			{
 				if(in_data->quality == PF_Quality_HI)
 					err = suites.PFWorldTransformSuite()->copy_hq(in_data->effect_ref, alphaWorld, output, NULL, NULL);
