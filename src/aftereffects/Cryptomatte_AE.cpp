@@ -732,10 +732,10 @@ CryptomatteContext::Level::GetColor(int x, int y) const
 	PF_PixelFloat color;
 	
 	// this method copied from the Nuke plug-in
-	color.red	= coverage * fmodf(frexpf(fabsf(floatHash), &exp) * 1, 0.25);
-	color.green	= coverage * fmodf(frexpf(fabsf(floatHash), &exp) * 4, 0.25);
-	color.blue	= coverage * fmodf(frexpf(fabsf(floatHash), &exp) * 16, 0.25);
-	
+	color.red =   coverage * fmodf(frexpf(fabsf(floatHash), &exp) * 1, 0.5);
+	color.green = coverage * fmodf(frexpf(fabsf(floatHash), &exp) * 16, 0.5);
+	color.blue =  coverage * fmodf(frexpf(fabsf(floatHash), &exp) * 64, 0.5);
+
 	color.alpha = 1.f;
 	
 	return color;
