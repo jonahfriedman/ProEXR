@@ -83,6 +83,9 @@ typedef uint32_t Hash;
 Hash
 FloatHashToHash(float floatHash);
 
+float
+HashToFloat(Hash hash);
+
 #define MAX_LAYER_NAME_LEN 63 // same as PF_CHANNEL_NAME_LEN
 
 typedef struct {
@@ -179,7 +182,8 @@ class CryptomatteContext
 		PF_PixelFloat GetColor(int x, int y) const;
 		
 		Hash GetHash(int x, int y) const;
-		
+		float GetFloatHash(int x, int y) const;
+
 		inline int Width() const { return (_hash ? _hash->Width() : 0); }
 		inline int Height() const { return (_hash ? _hash->Height() : 0); }
 		

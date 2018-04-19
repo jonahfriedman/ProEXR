@@ -56,6 +56,14 @@ FloatHashToHash(float floatHash)
 	return result;
 }
 
+float
+HashToFloat(Hash hash)
+{
+	float result;
+	memcpy(&result, &hash, 4);
+	return result;
+}
+
 #ifndef NDEBUG
 static int gNumContexts = 0;
 #endif
@@ -362,11 +370,7 @@ CryptomatteContext::GetSelectionColor(int x, int y) const
 
 	if(_levels.size() >= 1)
 	{
-		float *redf = &color.red;
-
-		Hash *red = (Hash *)redf;
-			
-		*red = _levels[0]->GetHash(x, y);
+		color.red = _levels[0]->GetFloatHash(x, y);
 	}
 	else
 		color.red = 0.f;
@@ -375,11 +379,7 @@ CryptomatteContext::GetSelectionColor(int x, int y) const
 
 	if(_levels.size() >= 2)
 	{
-		float *bluef = &color.blue;
-
-		Hash *blue = (Hash *)bluef;
-			
-		*blue = _levels[1]->GetHash(x, y);
+		color.blue = _levels[0]->GetFloatHash(x, y);
 	}
 	else
 		color.blue = 0.f;
@@ -750,6 +750,12 @@ Hash
 CryptomatteContext::Level::GetHash(int x, int y) const
 {
 	return FloatHashToHash(_hash->Get(x, y));
+}
+
+float
+CryptomatteContext::Level::GetFloatHash(int x, int y) const
+{
+	return _hash->Get(x, y);
 }
 
 typedef struct FloatBufferIterateData {
