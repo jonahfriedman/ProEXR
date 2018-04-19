@@ -80,6 +80,8 @@ enum {
 
 typedef uint32_t Hash;
 
+Hash
+FloatHashToHash(float floatHash);
 
 #define MAX_LAYER_NAME_LEN 63 // same as PF_CHANNEL_NAME_LEN
 

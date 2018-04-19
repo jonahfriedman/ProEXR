@@ -48,6 +48,13 @@ class ErrThrower : public std::exception
 	A_Err _err;
 };
 
+Hash
+FloatHashToHash(float floatHash)
+{
+	Hash result;
+	memcpy(&result, &floatHash, 4);
+	return result;
+}
 
 #ifndef NDEBUG
 static int gNumContexts = 0;
@@ -696,12 +703,10 @@ CryptomatteContext::Level::GetCoverage(const std::set<Hash> &selection, int x, i
 	if(coverage > 0.f)
 	{
 		levelsEnd = false;
-		
-		const float floatHash = _hash->Get(x, y);
-		
-		const Hash *hash = (Hash *)&floatHash;
-		
-		return (selection.count(*hash) ? coverage : 0.f);
+
+		const Hash hash = FloatHashToHash(_hash->Get(x, y));
+
+		return (selection.count(hash) ? coverage : 0.f);
 	}
 	else
 	{
@@ -741,17 +746,11 @@ CryptomatteContext::Level::GetColor(int x, int y) const
 	return color;
 }
 
-
 Hash
 CryptomatteContext::Level::GetHash(int x, int y) const
 {
-	const float floatHash = _hash->Get(x, y);
-	
-	const Hash *hash = (Hash *)&floatHash;
-	
-	return *hash;
+	return FloatHashToHash(_hash->Get(x, y));
 }
-
 
 typedef struct FloatBufferIterateData {
 	char *buf;
