@@ -237,7 +237,7 @@ CryptomatteContext::LoadLevels(PF_InData *in_data)
 				PF_ChannelRef hash, coverage;
 				bool foundHash = false, foundCoverage = false;
 				
-				for(int i=0; i < num_channels; i++)
+				for(int i=1; i < num_channels; i++) // start iterating at 1 to skip deprecated "preview" layer
 				{
 					PF_Boolean found;
 					PF_ChannelRef channelRef;
